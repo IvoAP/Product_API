@@ -1,0 +1,13 @@
+[project]
+name = "product-api"
+version = "0.1.0"
+description = "Add your description here"
+readme = "README.md"
+requires-python = ">=3.12"
+dependencies = [
+    "dotenv>=0.9.9",
+    "fastapi>=0.119.0",
+    "pytest>=8.4.2",
+    "sqlalchemy>=2.0.44",
+    "uvicorn>=0.37.0",
+]
