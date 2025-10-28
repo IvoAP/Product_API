@@ -40,11 +40,14 @@ class CategoryService:
 
     # Create
     def create(self, payload: CategoryCreate) -> Category:
-        slug = payload.slug or normalize_slug(payload.name)
-        # Ensure uniqueness / generate incremented slug if needed
+        # Determine initial slug (either user provided or derived from name)
+        original_slug = payload.slug or normalize_slug(payload.name)
         existing_slugs = {c.slug for c in self.repo.list_all()}
+        slug = original_slug
         if slug in existing_slugs:
-            slug = generate_unique_slug(payload.name, existing_slugs)
+            # If user provided a slug, preserve its base when incrementing.
+            base_for_increment = original_slug if payload.slug else payload.name
+            slug = generate_unique_slug(base_for_increment, existing_slugs)
         if self.repo.exists_name(payload.name):
             raise DuplicateNameError(payload.name)
         category = Category(name=payload.name, slug=slug, description=payload.description)
