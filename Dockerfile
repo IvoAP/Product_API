@@ -23,9 +23,11 @@ RUN uv pip install --system .
 COPY app/ /app/app/
 COPY alembic.ini /app/alembic.ini
 COPY migrations/ /app/migrations/
+COPY start.sh /app/start.sh
+RUN chmod +x /app/start.sh
 
 # Expose port
 EXPOSE 8000
 
-# Command to run the application
-CMD ["uvicorn", "app.main:app", "--host", "0.0.0.0", "--port", "8000"]
+# Command to run the startup script (migrate, seed, serve)
+CMD ["./start.sh"]
