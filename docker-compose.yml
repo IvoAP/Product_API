@@ -1,34 +1,50 @@
 services:
+  db:
+    image: postgres:15-alpine
+    container_name: product-db
+    env_file: .env
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB}
+      POSTGRES_USER: ${POSTGRES_USER}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD}
+    ports:
+      - "5432:5432"
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    restart: unless-stopped
+  
+
   api:
     build: .
     container_name: product-api
     ports:
       - "8000:8000"
+    env_file: .env
     environment:
-      - PYTHONUNBUFFERED=1
+      PYTHONUNBUFFERED: 1
     volumes:
       - ./app:/app/app
     restart: unless-stopped
-    healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:8000/"]
-      interval: 30s
-      timeout: 10s
-      retries: 3
-      start_period: 40s
+    depends_on:
+      - db
+   
 
-  # Descomente as linhas abaixo se você quiser adicionar um banco de dados PostgreSQL
-  # db:
-  #   image: postgres:15-alpine
-  #   container_name: product-db
-  #   environment:
-  #     POSTGRES_DB: product_api
-  #     POSTGRES_USER: admin
-  #     POSTGRES_PASSWORD: admin123
-  #   ports:
-  #     - "5432:5432"
-  #   volumes:
-  #     - postgres_data:/var/lib/postgresql/data
-  #   restart: unless-stopped
+  pgadmin:
+    image: dpage/pgadmin4:8.10
+    container_name: product-pgadmin
+    env_file: .env
+    environment:
+      PGADMIN_DEFAULT_EMAIL: ${PGADMIN_DEFAULT_EMAIL}
+      PGADMIN_DEFAULT_PASSWORD: ${PGADMIN_DEFAULT_PASSWORD}
+    ports:
+      - "${PGADMIN_PORT}:80"
+    depends_on:
+      - db
+    volumes:
+      - pgadmin_data:/var/lib/pgadmin
+    restart: unless-stopped
+    
 
-# volumes:
-#   postgres_data:
+volumes:
+  postgres_data:
+  pgadmin_data:
